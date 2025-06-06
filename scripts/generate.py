@@ -10,7 +10,7 @@ Run with: python scripts/generate.py --model_path <PATH TO LOCAL MODEL OR HF HUB
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 
 import draccus
 import requests
@@ -37,8 +37,8 @@ class GenerateConfig:
         "prism-dinosiglip+7b"
     )
 
-    # HF Hub Credentials (required for Gated Models like LLaMa-2)
-    hf_token: Union[str, Path] = Path(".hf_token")                      # Environment variable or Path to HF Token
+    # HF Hub Credentials (optional, only needed for gated models)
+    hf_token: Optional[Union[str, Path]] = None                         # Environment variable or Path to HF Token
 
     # Default Generation Parameters =>> subscribes to HuggingFace's GenerateMixIn API
     do_sample: bool = False
@@ -52,7 +52,16 @@ class GenerateConfig:
 @draccus.wrap()
 def generate(cfg: GenerateConfig) -> None:
     overwatch.info(f"Initializing Generation Playground with Prismatic Model `{cfg.model_path}`")
-    hf_token = cfg.hf_token.read_text().strip() if isinstance(cfg.hf_token, Path) else os.environ[cfg.hf_token]
+    # hf_token = cfg.hf_token.read_text().strip() if isinstance(cfg.hf_token, Path) else os.environ[cfg.hf_token]
+    hf_token = None
+    if cfg.hf_token is not None:
+        try:
+            if isinstance(cfg.hf_token, Path):
+                hf_token = cfg.hf_token.read_text().strip()
+            else:
+                hf_token = os.environ.get(cfg.hf_token)
+        except (FileNotFoundError, KeyError):
+            overwatch.warning("HF token not found, proceeding without authentication")
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     # Load the pretrained VLM --> uses default `load()` function
@@ -120,6 +129,7 @@ def generate(cfg: GenerateConfig) -> None:
                         temperature=cfg.temperature,
                         max_new_tokens=cfg.max_new_tokens,
                         min_length=cfg.min_length,
+                        use_cache=False
                     )
                     prompt_builder.add_turn(role="gpt", message=generated_text)
                     print(f"\t|=>> VLM Response >>> {generated_text}\n")

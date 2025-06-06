@@ -1,5 +1,5 @@
 """
-mistral.py
+moxin.py
 
 Class definition for all LLMs derived from MistralForCausalLM.
 """
@@ -12,25 +12,28 @@ from transformers import MistralForCausalLM
 from transformers.models.mistral.modeling_mistral import MistralDecoderLayer
 
 from prismatic.models.backbones.llm.base_llm import HFCausalLLMBackbone
-from prismatic.models.backbones.llm.prompting import MistralInstructPromptBuilder, PromptBuilder, PurePromptBuilder
+from prismatic.models.backbones.llm.prompting import PromptBuilder, PurePromptBuilder, MoxinInstructPromptBuilder
 
-# Registry =>> Support Mistral Models (from HF Transformers)
+# Registry =>> Support Moxin Models (from HF Transformers)
 # fmt: off
-MISTRAL_MODELS = {
-    # === Base Mistral v0.1 ===
-    "mistral-v0.1-7b-pure": {
-        "llm_family": "mistral", "llm_cls": MistralForCausalLM, "hf_hub_path": "mistralai/Mistral-7B-v0.1"
+MOXIN_MODELS = {
+    # === Base Moxin ===
+    # "moxin-7b-pure": {
+    #     "llm_family": "moxin", "llm_cls": MistralForCausalLM, "hf_hub_path": "moxin-org/moxin-llm-7b"
+    # },
+    "moxin-7b-pure": {
+        "llm_family": "moxin", "llm_cls": MistralForCausalLM, "hf_hub_path": "moxin-org/moxin-instruct-7b"
     },
 
-    # === Mistral Instruct v0.1 ===
-    "mistral-v0.1-7b-instruct": {
-        "llm_family": "mistral", "llm_cls": MistralForCausalLM, "hf_hub_path": "mistralai/Mistral-7B-Instruct-v0.1"
-    }
+    # === Moxin Instruct ===
+    # "moxin-7b-instruct": {
+    #     "llm_family": "mistral", "llm_cls": MistralForCausalLM, "hf_hub_path": "moxin-org/moxin-instruct-7b"
+    # }
 }
 # fmt: on
 
 
-class MistralLLMBackbone(HFCausalLLMBackbone):
+class MoxinLLMBackbone(HFCausalLLMBackbone):
     def __init__(
         self,
         llm_backbone_id: str,
@@ -45,7 +48,7 @@ class MistralLLMBackbone(HFCausalLLMBackbone):
             hf_token=hf_token,
             inference_mode=inference_mode,
             use_flash_attention_2=use_flash_attention_2,
-            **MISTRAL_MODELS[llm_backbone_id],
+            **MOXIN_MODELS[llm_backbone_id],
         )
 
         # [Special Case] Mistral PAD Token Handling --> for clarity, we add an extra token (and resize)
@@ -59,7 +62,7 @@ class MistralLLMBackbone(HFCausalLLMBackbone):
             return PurePromptBuilder
 
         elif self.identifier.endswith("-instruct"):
-            return MistralInstructPromptBuilder
+            return MoxinInstructPromptBuilder
 
         raise ValueError(f"No PromptBuilder defined for LLM Backbone `{self.identifier}`")
 

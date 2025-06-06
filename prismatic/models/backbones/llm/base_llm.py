@@ -26,6 +26,11 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 from prismatic.models.backbones.llm.prompting import PromptBuilder
 from prismatic.overwatch import initialize_overwatch
 
+from peft import get_peft_model
+
+import time
+
+
 # Suppress HF Deprecation Warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -105,6 +110,8 @@ class HFCausalLLMBackbone(LLMBackbone, ABC):
         hf_token: Optional[str] = None,
         inference_mode: bool = False,
         use_flash_attention_2: bool = False,
+        enable_peft: bool = False,
+        lora_config = None,
     ) -> None:
         super().__init__(llm_backbone_id)
         self.llm_family = llm_family
@@ -124,18 +131,32 @@ class HFCausalLLMBackbone(LLMBackbone, ABC):
                 temperature=1.0,
                 top_p=1.0,
             )
+            if enable_peft == True:
+                self.llm = get_peft_model(self.llm, lora_config)
 
         # [Contract] `inference_mode` means we're loading from a pretrained checkpoint; no need to load base weights!
         else:
+            # start_time = time.time()
             overwatch.info(f"Building empty [bold]{llm_family}[/] LLM from [underline]`{hf_hub_path}`[/]", ctx_level=1)
+
             llm_config = AutoConfig.from_pretrained(hf_hub_path, token=hf_token)
+            # config_load_time = time.time()
+            # overwatch.info(f"Config loaded in {config_load_time - start_time:.2f} seconds", ctx_level=2)
+
             self.llm = llm_cls._from_config(llm_config)
+            # model_build_time = time.time()
+            # overwatch.info(f"Model built in {model_build_time - config_load_time:.2f} seconds", ctx_level=2)
+
+            if enable_peft == True:
+                overwatch.info("enable_peft", ctx_level=2)
+                self.llm = get_peft_model(self.llm, lora_config)
 
         # Lightweight Handling (with extended explanation) for setting some LLM Parameters
         #   => Set `decoder.use_cache = False` --> incompatible with gradient checkpointing (+ training in general)
         #
         #      Reference: https://discuss.huggingface.co/t/what-is-the-purpose-of-use-cache-in-decoder/958
         self.llm.config.use_cache = False if not self.inference_mode else True
+        overwatch.info(f"self.llm.config.use_cache: {self.llm.config.use_cache}", ctx_level=2)
 
         #   => Turns out that when gradient checkpointing is on and the underlying LLM has no "trainable" parameters
         #      (requires_grad is False), backprop will fail; setting `enable_input_requires_grad()` registers a new
@@ -159,19 +180,6 @@ class HFCausalLLMBackbone(LLMBackbone, ABC):
         #                starts with a <BOS> token unless `add_special_tokens = False`; for these models, we empirically
         #                find that adding image patches *after* the BOS leads to much better performance.
         #
-        # As a result we explicitly validate that a tokenizer conforms to the expected behavior; if you're reading this
-        # line, it's probably because you're adding a new LLM with a different tokenizer behavior. If so, feel free to
-        # override the `SPECIAL_CASES` set below, but make sure to make the appropriate changes in the `datasets.py`
-        # and VLM `forward()` logic!
-        SPECIAL_CASES = {
-            # Phi-2 Tokenizer doesn't add any BOS tokens by default, and sets BOS == EOS == "<|endoftext|>"
-            #   =>> We'll prepend BOS to first input (to play nicely with image token insertion logic; verified that
-            #       this works well with base LLM generation.
-            #   =>> Like Llama-2 Tokenizers -- we'll add a special PAD token for training purposes.
-            "phi-2-3b",
-        }
-        if self.identifier in SPECIAL_CASES:
-            return
 
         # Note =>> this assert should hold for all Llama-derived tokenizers (`LlamaTokenizerFast` ==> includes Mistral!
         assert (self.tokenizer("Test 123", add_special_tokens=True).input_ids[0] == self.tokenizer.bos_token_id) and (

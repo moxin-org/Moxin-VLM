@@ -9,17 +9,8 @@ from typing import Optional, Tuple
 
 from transformers import PreTrainedTokenizerBase
 
-from prismatic.models.backbones.llm import LLaMa2LLMBackbone, LLMBackbone, MistralLLMBackbone, PhiLLMBackbone
-from prismatic.models.backbones.vision import (
-    CLIPViTBackbone,
-    DinoCLIPViTBackbone,
-    DinoSigLIPViTBackbone,
-    DinoV2ViTBackbone,
-    ImageTransform,
-    IN1KViTBackbone,
-    SigLIPViTBackbone,
-    VisionBackbone,
-)
+from prismatic.models.backbones.llm import LLMBackbone, MoxinLLMBackbone
+from prismatic.models.backbones.vision import VisionBackbone, DinoSigLIPViTBackbone, ImageTransform
 from prismatic.models.vlms import PrismaticVLM
 
 # === Registries =>> Maps ID --> {cls(), kwargs} :: Different Registries for Vision Backbones, LLM Backbones, VLMs ===
@@ -28,48 +19,14 @@ from prismatic.models.vlms import PrismaticVLM
 # === Vision Backbone Registry ===
 VISION_BACKBONES = {
     # === 224px Backbones ===
-    "clip-vit-l": {"cls": CLIPViTBackbone, "kwargs": {"default_image_size": 224}},
-    "siglip-vit-so400m": {"cls": SigLIPViTBackbone, "kwargs": {"default_image_size": 224}},
-    "dinov2-vit-l": {"cls": DinoV2ViTBackbone, "kwargs": {"default_image_size": 224}},
-    "in1k-vit-l": {"cls": IN1KViTBackbone, "kwargs": {"default_image_size": 224}},
     "dinosiglip-vit-so-224px": {"cls": DinoSigLIPViTBackbone, "kwargs": {"default_image_size": 224}},
-
-    # === Assorted CLIP Backbones ===
-    "clip-vit-b": {"cls": CLIPViTBackbone, "kwargs": {"default_image_size": 224}},
-    "clip-vit-l-336px": {"cls": CLIPViTBackbone, "kwargs": {"default_image_size": 336}},
-
-    # === Assorted SigLIP Backbones ===
-    "siglip-vit-b16-224px": {"cls": SigLIPViTBackbone, "kwargs": {"default_image_size": 224}},
-    "siglip-vit-b16-256px": {"cls": SigLIPViTBackbone, "kwargs": {"default_image_size": 256}},
-    "siglip-vit-b16-384px": {"cls": SigLIPViTBackbone, "kwargs": {"default_image_size": 384}},
-    "siglip-vit-so400m-384px": {"cls": SigLIPViTBackbone, "kwargs": {"default_image_size": 384}},
-
-    # === Fused Backbones ===
-    "dinoclip-vit-l-336px": {"cls": DinoCLIPViTBackbone, "kwargs": {"default_image_size": 336}},
-    "dinosiglip-vit-so-384px": {"cls": DinoSigLIPViTBackbone, "kwargs": {"default_image_size": 384}},
 }
 
 
 # === Language Model Registry ===
 LLM_BACKBONES = {
-    # === LLaMa-2 Pure (Non-Chat) Backbones ===
-    "llama2-7b-pure": {"cls": LLaMa2LLMBackbone, "kwargs": {}},
-    "llama2-13b-pure": {"cls": LLaMa2LLMBackbone, "kwargs": {}},
-
-    # === LLaMa-2 Chat Backbones ===
-    "llama2-7b-chat": {"cls": LLaMa2LLMBackbone, "kwargs": {}},
-    "llama2-13b-chat": {"cls": LLaMa2LLMBackbone, "kwargs": {}},
-
-    # === Vicuna-v1.5 Backbones ===
-    "vicuna-v15-7b": {"cls": LLaMa2LLMBackbone, "kwargs": {}},
-    "vicuna-v15-13b": {"cls": LLaMa2LLMBackbone, "kwargs": {}},
-
-    # === Mistral v0.1 Backbones ===
-    "mistral-v0.1-7b-pure": {"cls": MistralLLMBackbone, "kwargs": {}},
-    "mistral-v0.1-7b-instruct": {"cls": MistralLLMBackbone, "kwargs": {}},
-
-    # === Phi-2 Backbone ===
-    "phi-2-3b": {"cls": PhiLLMBackbone, "kwargs": {}},
+    # === Moxin Backbones ===
+    "moxin-7b-pure": {"cls": MoxinLLMBackbone, "kwargs": {}},
 }
 
 # fmt: on
@@ -100,7 +57,7 @@ def get_llm_backbone_and_tokenizer(
     if llm_backbone_id in LLM_BACKBONES:
         llm_cfg = LLM_BACKBONES[llm_backbone_id]
         llm_backbone: LLMBackbone = llm_cfg["cls"](
-            llm_backbone_id,
+           llm_backbone_id,
             llm_max_length=llm_max_length,
             hf_token=hf_token,
             inference_mode=inference_mode,
