@@ -75,17 +75,15 @@ class ModelConfig(ChoiceRegistry):
 
     # fmt: on
 
-
-# === LLaVa v1.5 Reproduction - Fully Specified Configurations ===
 @dataclass
-class LLaVa_v15_Reproduction_7B(ModelConfig):
-    model_id: str = "reproduction-llava-v15+7b"
-    arch_specifier: str = "gelu-mlp"
+class Prism_Moxin_7B_DINOSigLIP_224px(ModelConfig):
+    model_id: str = "prism-moxin-dinosiglip-224px+7b"
+    arch_specifier: str = "no-align+fused-gelu-mlp"
 
-    vision_backbone_id: str = "clip-vit-l-336px"
-    llm_backbone_id: str = "vicuna-v15-7b"
+    vision_backbone_id: str = "dinosiglip-vit-so-224px"
+    llm_backbone_id: str = "moxin-7b-pure"
 
-    image_resize_strategy: str = "letterbox"
+    image_resize_strategy: str = "resize-naive"
     llm_max_length: int = 2048
 
     # Align Stage Optimization Parameters
@@ -103,7 +101,7 @@ class LLaVa_v15_Reproduction_7B(ModelConfig):
     align_train_strategy: str = "fsdp-shard-grad-op"
 
     # Finetune Stage Optimization Parameters
-    finetune_epochs: int = 1
+    finetune_epochs: int = 2
     finetune_max_steps: Optional[int] = None
     finetune_global_batch_size: int = 128
     finetune_per_device_batch_size: int = 16
@@ -116,46 +114,9 @@ class LLaVa_v15_Reproduction_7B(ModelConfig):
 
     finetune_train_strategy: str = "fsdp-full-shard"
 
-
-@dataclass
-class LLaVa_v15_Reproduction_13B(LLaVa_v15_Reproduction_7B):
-    model_id: str = "reproduction-llava-v15+13b"
-    llm_backbone_id: str = "vicuna-v15-13b"
-
-
-# === Section 4.1 :: Optimization Procedure ===
-
-
-# Section 4.1A :: 🚀 --> Necessity of Multi-Stage Training
-@dataclass
-class Exp_7B_One_Stage(LLaVa_v15_Reproduction_7B):
-    model_id: str = "one-stage+7b"
-    arch_specifier: str = "no-align+gelu-mlp"
-
-
-# ~ LLM Backbones
-@dataclass
-class Ext_Exp_7B_Moxin(Exp_7B_One_Stage):
-    model_id: str = "moxin+7b"
-    llm_backbone_id: str = "moxin-7b-pure"
-
-
-# Moxin LLM Backbone here
-@dataclass
-class Prism_Moxin_7B_DINOSigLIP_224px(Exp_7B_One_Stage):
-    model_id: str = "prism-moxin-dinosiglip-224px+7b"
-    vision_backbone_id: str = "dinosiglip-vit-so-224px"
-    image_resize_strategy: str = "resize-naive"
-    llm_backbone_id: str = "moxin-7b-pure"
-    arch_specifier: str = "no-align+fused-gelu-mlp"
-    finetune_epochs: int = 2
-
 # === Define a Model Registry Enum for Reference & Validation ===
 @unique
 class ModelRegistry(Enum):
-    # LLM Backbone 
-    EXT_EXP_MOXIN_7B = Ext_Exp_7B_Moxin
-
     # Moxin
     PRISM_MOXIN_DINOSIGLIP_224PX_7B = Prism_Moxin_7B_DINOSigLIP_224px
 
