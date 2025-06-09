@@ -53,14 +53,14 @@ This project is based on [Prismatic VLMs](https://github.com/TRI-ML/prismatic-vl
 Special thanks to the original contributors for their excellent work.
 
 ## Citation 
-If you find our code or models useful in your work, please cite [our paper](https://arxiv.org/html/2412.06845v2):
+If you find our code or models useful in your work, please cite [our paper](https://arxiv.org/abs/2412.06845v4):
 
 ```bibtex
-@inproceedings{karamcheti2024prismatic,
-  title = {Prismatic VLMs: Investigating the Design Space of Visually-Conditioned Language Models},
-  author = {Siddharth Karamcheti and Suraj Nair and Ashwin Balakrishna and Percy Liang and Thomas Kollar and Dorsa Sadigh},
-  booktitle = {International Conference on Machine Learning (ICML)},
-  year = {2024},
+@article{zhao2024fully,
+  title={Fully Open Source Moxin-7B Technical Report},
+  author={Zhao, Pu and Shen, Xuan and Kong, Zhenglun and Shen, Yixin and Chang, Sung-En and Rupprecht, Timothy and Lu, Lei and Nan, Enfu and Yang, Changdi and He, Yumei and others},
+  journal={arXiv preprint arXiv:2412.06845},
+  year={2024}
 }
 ```
 
