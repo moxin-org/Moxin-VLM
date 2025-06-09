@@ -80,15 +80,14 @@ python scripts/generate.py --model_path runs/prism-moxin-dinosiglip-224px+7b+sta
 
 ## Pretrained Models
 
-Please find our Pretrained Models on our huggingface page.
+Please find our Pretrained Models on our [huggingface page](https://huggingface.co/moxin-org).
 
 ---
-**Explicit Notes on Model Licensing & Commercial Use**: 
-
 
 ## Acknowledgments
 
 This project is based on [Prismatic VLMs](https://github.com/TRI-ML/prismatic-vlms) by [TRI-ML](https://github.com/TRI-ML). 
+
 Special thanks to the original contributors for their excellent work.
 
 ## Citation 
