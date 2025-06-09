@@ -20,7 +20,7 @@ conda create -n moxin-vlm python=3.10 -y
 conda activate moxin-vlm
 
 pip install torch==2.4.1 torchvision==0.19.1
-pip install transformers==4.44.0
+pip install transformers==4.46.0 peft==0.15.2
 
 pip install -e .
 
@@ -28,7 +28,6 @@ pip install -e .
 #   =>> If you run into difficulty, try `pip cache remove flash_attn` first
 pip install flash-attn==2.6.3 --no-build-isolation
 
-pip install peft
 ```
 
 If you run into any problems during the installation process, please file a GitHub Issue.
