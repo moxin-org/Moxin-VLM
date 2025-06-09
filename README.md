@@ -21,13 +21,14 @@ conda activate moxin-vlm
 
 pip install torch==2.4.1 torchvision==0.19.1
 pip install transformers==4.44.0
-pip install peft
 
 pip install -e .
 
 # Install Flash Attention 2 
 #   =>> If you run into difficulty, try `pip cache remove flash_attn` first
 pip install flash-attn==2.6.3 --no-build-isolation
+
+pip install peft
 ```
 
 If you run into any problems during the installation process, please file a GitHub Issue.
