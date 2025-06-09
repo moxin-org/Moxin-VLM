@@ -34,45 +34,6 @@ If you run into any problems during the installation process, please file a GitH
 
 ## Usage
 
-Once installed, loading and running inference with pretrained models is easy:
-
-```python
-import requests
-import torch
-
-from PIL import Image
-from pathlib import Path
-
-from prismatic import load
-
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-# Load a pretrained VLM (local path) 
-model_path = "" # PATH TO LOCAL MOXIN VLM
-vlm = load(model_id)
-vlm.to(device, dtype=torch.bfloat16)
-
-# Download an image and specify a prompt
-image_url = "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/beignets-task-guide.png"
-image = Image.open(requests.get(image_url, stream=True).raw).convert("RGB")
-user_prompt = "What is going on in this image?"
-
-# Build prompt
-prompt_builder = vlm.get_prompt_builder()
-prompt_builder.add_turn(role="human", message=user_prompt)
-prompt_text = prompt_builder.get_prompt()
-
-# Generate!
-generated_text = vlm.generate(
-    image,
-    prompt_text,
-    do_sample=True,
-    temperature=0.4,
-    max_new_tokens=512,
-    min_length=1,
-)
-```
-
 For a complete terminal-based CLI for interacting with our VLMs, check out [scripts/generate.py](scripts/generate.py). 
 ```bash
 python scripts/generate.py --model_path runs/prism-moxin-dinosiglip-224px+7b+stage-finetune+x7
