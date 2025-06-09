@@ -21,6 +21,7 @@ conda activate moxin-vlm
 
 pip install torch==2.4.1 torchvision==0.19.1
 pip install transformers==4.44.0
+pip install peft
 
 pip install -e .
 
