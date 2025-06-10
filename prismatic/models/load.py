@@ -28,31 +28,51 @@ HF_HUB_REPO = ""  # HF for Moxin-VLM
 def load(
     model_id_or_path: Union[str, Path], hf_token: Optional[str] = None, cache_dir: Optional[Union[str, Path]] = None
 ) -> PrismaticVLM:
-    """Loads a pretrained PrismaticVLM from local disk"""
-    assert os.path.isdir(model_id_or_path), f"Model path `{model_id_or_path}` must be a valid local directory"
-    overwatch.info(f"Loading from local path `{(run_dir := Path(model_id_or_path))}`")
+    # assert os.path.isdir(model_id_or_path), f"Model path `{model_id_or_path}` must be a valid local directory"
+    # overwatch.info(f"Loading from local path `{(run_dir := Path(model_id_or_path))}`")
     
-    # Get paths for `config.json` and pretrained checkpoint
-    config_json, checkpoint_pt = run_dir / "config.json", run_dir / "checkpoints" / "latest-checkpoint.pt"
-    assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
-    assert checkpoint_pt.exists(), f"Missing checkpoint for `{run_dir = }`"
+    # # Get paths for `config.json` and pretrained checkpoint
+    # config_json, checkpoint_pt = run_dir / "config.json", run_dir / "checkpoints" / "latest-checkpoint.pt"
+    # assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
+    # assert checkpoint_pt.exists(), f"Missing checkpoint for `{run_dir = }`"
 
-    # if os.path.isdir(model_id_or_path):
-    #     overwatch.info(f"Loading from local path `{(run_dir := Path(model_id_or_path))}`")
+    if os.path.isdir(model_id_or_path):
+        overwatch.info(f"Loading from local path `{(run_dir := Path(model_id_or_path))}`")
 
-    #     # Get paths for `config.json` and pretrained checkpoint
-    #     config_json, checkpoint_pt = run_dir / "config.json", run_dir / "checkpoints" / "latest-checkpoint.pt"
-    #     assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
-    #     assert checkpoint_pt.exists(), f"Missing checkpoint for `{run_dir = }`"
-    # else:
-    #     if model_id_or_path not in GLOBAL_REGISTRY:
-    #         raise ValueError(f"Couldn't find `{model_id_or_path = }; check `prismatic.available_model_names()`")
-
-    #     overwatch.info(f"Downloading `{(model_id := GLOBAL_REGISTRY[model_id_or_path]['model_id'])} from HF Hub")
-    #     config_json = hf_hub_download(repo_id=HF_HUB_REPO, filename=f"{model_id}/config.json", cache_dir=cache_dir)
-    #     checkpoint_pt = hf_hub_download(
-    #         repo_id=HF_HUB_REPO, filename=f"{model_id}/checkpoints/latest-checkpoint.pt", cache_dir=cache_dir
-    #     )
+        # Get paths for `config.json` and pretrained checkpoint
+        config_json, checkpoint_pt = run_dir / "config.json", run_dir / "checkpoints" / "latest-checkpoint.pt"
+        assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
+        assert checkpoint_pt.exists(), f"Missing checkpoint for `{run_dir = }`"
+    else:
+        if not isinstance(model_id_or_path, str) or '/' not in model_id_or_path:
+            raise ValueError(f"Invalid model_id format: `{model_id_or_path}`. Expected format: 'username/model-name'")
+    
+        try:
+            from huggingface_hub import repo_exists, repo_info
+            if not repo_exists(model_id_or_path):
+                raise ValueError(f"Repository `{model_id_or_path}` does not exist on Hugging Face Hub")
+            
+            # 检查必需文件是否存在
+            info = repo_info(model_id_or_path)
+            available_files = [f.rfilename for f in info.siblings]
+            
+            required_files = ["config.json", "checkpoints/latest-checkpoint.pt"]
+            missing_files = [f for f in required_files if f not in available_files]
+            
+            if missing_files:
+                raise ValueError(f"Missing required files in repository `{model_id_or_path}`: {missing_files}")
+                
+        except Exception as e:
+            if "Missing required files" in str(e) or "does not exist" in str(e):
+                raise e
+            else:
+                raise ConnectionError(f"Failed to verify repository. Check your internet connection and HF Hub access: {e}")
+        
+        overwatch.info(f"Downloading `{model_id_or_path} from HF Hub")
+        config_json = hf_hub_download(repo_id=model_id_or_path, filename=f"config.json", cache_dir=cache_dir)
+        checkpoint_pt = hf_hub_download(
+            repo_id=model_id_or_path, filename=f"checkpoints/latest-checkpoint.pt", cache_dir=cache_dir
+        )
 
     # Load Model Config from `config.json`
     with open(config_json, "r") as f:

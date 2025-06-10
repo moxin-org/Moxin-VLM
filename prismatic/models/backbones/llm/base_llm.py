@@ -156,7 +156,7 @@ class HFCausalLLMBackbone(LLMBackbone, ABC):
         #
         #      Reference: https://discuss.huggingface.co/t/what-is-the-purpose-of-use-cache-in-decoder/958
         self.llm.config.use_cache = False if not self.inference_mode else True
-        overwatch.info(f"self.llm.config.use_cache: {self.llm.config.use_cache}", ctx_level=2)
+        # overwatch.info(f"self.llm.config.use_cache: {self.llm.config.use_cache}", ctx_level=2)
 
         #   => Turns out that when gradient checkpointing is on and the underlying LLM has no "trainable" parameters
         #      (requires_grad is False), backprop will fail; setting `enable_input_requires_grad()` registers a new
