@@ -7,7 +7,7 @@ print("Starting download...")
 
 snapshot_download(
     repo_id = "moxin-org/moxin-vlm-7b",
-    local_dir = "moxin-org/moxin-vlm-7b",
+    local_dir = "moxin-vlm-7b",
 )
 
 print("Download finished.")
