@@ -42,7 +42,15 @@ python scripts/generate.py --model_path moxin-org/moxin-vlm-7b
 
 ## Pretrained Models
 
-Please find our Pretrained Models on our [huggingface page](https://huggingface.co/moxin-org/moxin-vlm-7b).
+Please find our Pretrained Models on our huggingface page: [moxin-org/moxin-vlm-7b](https://huggingface.co/moxin-org/moxin-vlm-7b).
+
+We've also attach scripts to download and run our model locally.
+
+```bash
+python scripts/snapshot_download.py
+
+python scripts/generate.py --model_path <path_to_local_dir>
+```
 
 ---
 
