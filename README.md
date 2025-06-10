@@ -42,7 +42,7 @@ python scripts/generate.py --model_path runs/prism-moxin-dinosiglip-224px+7b+sta
 
 ## Pretrained Models
 
-Please find our Pretrained Models on our [huggingface page](https://huggingface.co/moxin-org).
+Please find our Pretrained Models on our [huggingface page](https://huggingface.co/moxin-org/moxin-vlm-7b).
 
 ---
 
