@@ -36,7 +36,7 @@ If you run into any problems during the installation process, please file a GitH
 
 For a complete terminal-based CLI for interacting with our VLMs, check out [scripts/generate.py](scripts/generate.py). 
 ```bash
-python scripts/generate.py --model_path runs/prism-moxin-dinosiglip-224px+7b+stage-finetune+x7
+python scripts/generate.py --model_path moxin-org/moxin-vlm-7b
 
 ```
 
