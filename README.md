@@ -13,8 +13,8 @@
 
 ```bash
 
-git clone https://github.com/Bobchenyx/prismatic-vlm-moxin.git
-cd prismatic-vlm-moxin
+git clone https://github.com/moxin-org/Moxin-VLM.git
+cd Moxin-VLM
 
 conda create -n moxin-vlm python=3.10 -y
 conda activate moxin-vlm
