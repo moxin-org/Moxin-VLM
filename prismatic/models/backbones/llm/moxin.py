@@ -22,7 +22,7 @@ MOXIN_MODELS = {
     #     "llm_family": "moxin", "llm_cls": MistralForCausalLM, "hf_hub_path": "moxin-org/moxin-llm-7b"
     # },
     "moxin-7b-pure": {
-        "llm_family": "moxin", "llm_cls": MistralForCausalLM, "hf_hub_path": "moxin-org/moxin-instruct-7b"
+        "llm_family": "moxin", "llm_cls": MistralForCausalLM, "hf_hub_path": "moxin-org/Moxin-7B-Instruct"
     },
 
     # === Moxin Instruct ===
