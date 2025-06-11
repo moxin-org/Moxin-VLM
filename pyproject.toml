@@ -3,14 +3,8 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "prismatic"
-authors = [
-    {name = "Siddharth Karamcheti", email="skaramcheti@cs.stanford.edu"},
-    {name = "Suraj Nair", email="suraj.nair@tri.global"},
-    {name = "Ashwin Balakrishna", email="ashwin.balakrishna@tri.global"},
-]
-description = "Prismatic VLMs: Investigating the Design Space of Visually-Conditioned Language Models"
-version = "0.0.2"
+name = "moxin-vlm-7b"
+version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.8"
 keywords = ["vision-language models", "multimodal pretraining", "machine learning"]
@@ -56,9 +50,7 @@ dev = [
 ]
 
 [project.urls]
-homepage = "https://github.com/TRI-ML/prismatic-vlms"
-repository = "https://github.com/TRI-ML/prismatic-vlms"
-documentation = "https://github.com/TRI-ML/prismatic-vlms"
+
 
 [tool.setuptools.packages.find]
 where = ["."]
