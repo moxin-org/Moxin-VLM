@@ -1,6 +1,6 @@
 # Moxin VLM
 
-[![arXiv](https://img.shields.io/badge/arXiv-2412.06845-df2a2a.svg?style=for-the-badge)](https://arxiv.org/abs/2412.06845v4)
+[![arXiv](https://img.shields.io/badge/arXiv-2412.06845-df2a2a.svg?style=for-the-badge)](https://arxiv.org/abs/2412.06845v5)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.4.1-EE4C2C.svg?style=for-the-badge&logo=pytorch)](https://pytorch.org/get-started/locally/)
 [![Python](https://img.shields.io/badge/python-3.10-blue?style=for-the-badge)](https://www.python.org)
 [![License](https://img.shields.io/github/license/TRI-ML/prismatic-vlms?style=for-the-badge)](LICENSE)
@@ -61,7 +61,7 @@ This project is based on [Prismatic VLMs](https://github.com/TRI-ML/prismatic-vl
 Special thanks to the original contributors for their excellent work.
 
 ## Citation 
-If you find our code or models useful in your work, please cite [our paper](https://arxiv.org/abs/2412.06845v4):
+If you find our code or models useful in your work, please cite [our paper](https://arxiv.org/abs/2412.06845v5):
 
 ```bibtex
 @article{zhao2024fully,
