@@ -6,8 +6,8 @@ from huggingface_hub import snapshot_download
 print("Starting download...")
 
 snapshot_download(
-    repo_id = "moxin-org/moxin-vlm-7b",
-    local_dir = "moxin-vlm-7b",
+    repo_id = "moxin-org/Moxin-7B-VLM",
+    local_dir = "Moxin-7B-VLM",
 )
 
 print("Download finished.")
