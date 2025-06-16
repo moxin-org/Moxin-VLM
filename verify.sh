@@ -1,0 +1,1 @@
+python scripts/extern/verify_prismatic.py 

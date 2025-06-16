@@ -147,3 +147,5 @@ dmypy.json
 # Caches and Datasets
 cache/
 data/
+Moxin-7B-VLM/
+prism-moxin-dinosiglip-hf/
