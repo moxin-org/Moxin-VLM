@@ -1,14 +1,10 @@
 """
-verify_prismatic.py
+fast_inference.py
 
-Given an HF-exported Prismatic model, attempt to load via AutoClasses, and verify forward() and generate().
+Run with an HF-exported Prismatic model path.
 """
 
 import time
-# import sys
-# from pathlib import Path
-
-# sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from prismatic.extern.hf.configuration_prismatic import PrismaticConfig
 from prismatic.extern.hf.modeling_prismatic import PrismaticForConditionalGeneration
@@ -19,47 +15,30 @@ import torch
 from PIL import Image
 from transformers import AutoTokenizer
 
+from transformers.utils import logging
+logging.set_verbosity_error()
+
 print("[*] Using direct Prismatic classes (bypassing AutoClasses)")
 
 # === Verification Arguments ===
-MODEL_PATH = "hf-prism-moxin-dinosiglip"
+MODEL_PATH = "Moxin-7B-VLM-hf"
 DEFAULT_IMAGE_URL = (
     "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/beignets-task-guide.png"
 )
-
-# if "-prism-" in MODEL_PATH:
-#     SAMPLE_PROMPTS_FOR_GENERATION = [
-#         "In: What is sitting in the coffee?\nOut:",
-#         "In: What's the name of the food on the plate?\nOut:",
-#         "In: caption.\nOut:",
-#         "In: how many beinets..?\nOut:",
-#         "In: Can you give me a lyrical description of the scene\nOut:",
-#     ]
-# else:
-#     SYSTEM_PROMPT = (
-#         "A chat between a curious user and an artificial intelligence assistant. "
-#         "The assistant gives helpful, detailed, and polite answers to the user's questions."
-#     )
-#     SAMPLE_PROMPTS_FOR_GENERATION = [
-#         f"{SYSTEM_PROMPT} USER: What is sitting in the coffee? ASSISTANT:",
-#         f"{SYSTEM_PROMPT} USER: What's the name of the food on the plate? ASSISTANT:",
-#         f"{SYSTEM_PROMPT} USER: caption. ASSISTANT:",
-#         f"{SYSTEM_PROMPT} USER: how many beinets..? ASSISTANT:",
-#         f"{SYSTEM_PROMPT} USER: Can you give me a lyrical description of the scene ASSISTANT:",
-#     ]
 
 SAMPLE_PROMPTS_FOR_GENERATION = [
     "In: What is sitting in the coffee?\nOut:",
     "In: What's the name of the food on the plate?\nOut:",
     "In: caption.\nOut:",
-    "In: how many beinets..?\nOut:",
-    "In: Can you give me a lyrical description of the scene\nOut:",
+    "In: How many beignets?\nOut:",
+    "In: Can you give me a lyrical description of the scene?\nOut:",
 ]
 
 @torch.inference_mode()
 def verify_prismatic() -> None:
     print(f"[*] Verifying PrismaticForConditionalGeneration using Model `{MODEL_PATH}`")
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    print(f"[*] Using device: {device}") 
 
     # Load each component separately
     print("[*] Instantiating Image Processor, Tokenizer and Processor")
@@ -82,7 +61,7 @@ def verify_prismatic() -> None:
 
     # Iterate over Sample Prompts =>> Generate
     image = Image.open(requests.get(DEFAULT_IMAGE_URL, stream=True).raw).convert("RGB")
-    num_tokens, total_time = 0, 0.0
+    # num_tokens, total_time = 0, 0.0
 
     print("[*] Iterating over Sample Prompts\n===\n")
     for idx, prompt in enumerate(SAMPLE_PROMPTS_FOR_GENERATION):
@@ -92,18 +71,18 @@ def verify_prismatic() -> None:
         gen_ids = None
         for _ in range(5):
             start_time = time.time()
-            gen_ids = vlm.generate(**inputs, do_sample=False, min_length=1, max_length=512)
-            total_time += time.time() - start_time
+            gen_ids = vlm.generate(**inputs, do_sample=False, min_length=1, max_new_tokens=512)
+            # total_time += time.time() - start_time
 
             gen_ids = gen_ids[0, inputs.input_ids.shape[1] :]
-            num_tokens += len(gen_ids)
+            # num_tokens += len(gen_ids)
 
         # ===
         gen_text = processor.decode(gen_ids, skip_special_tokens=True).strip()
         print(f"[{idx + 1}] Input Prompt => {prompt}\n    Generated    => {gen_text}\n")
 
     # Compute Tokens / Second
-    print(f"[*] Generated Tokens per Second = {num_tokens / total_time} w/ {num_tokens = } and {total_time = }")
+    # print(f"[*] Generated Tokens per Second = {num_tokens / total_time} w/ {num_tokens = } and {total_time = }")
 
 
 if __name__ == "__main__":

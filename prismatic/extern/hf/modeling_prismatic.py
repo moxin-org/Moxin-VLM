@@ -27,7 +27,8 @@ from timm.models.vision_transformer import LayerScale
 from transformers import AutoModelForCausalLM, PretrainedConfig, PreTrainedModel
 from transformers.modeling_outputs import ModelOutput
 
-from .configuration_prismatic import OpenVLAConfig, PrismaticConfig
+# from .configuration_prismatic import OpenVLAConfig, PrismaticConfig
+from .configuration_prismatic import PrismaticConfig
 
 # Get Logger
 logger = logging.getLogger(__name__)
@@ -224,13 +225,13 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
                 "if you urgently need support for latest TIMM versions."
             )
 
-        if (transformers.__version__ != "4.40.1") or (tokenizers.__version__ != "0.19.1"):
-            logger.warning(
-                f"Expected `transformers==4.40.1` and `tokenizers==0.19.1` but got "
-                f"`transformers=={transformers.__version__}` and `tokenizers=={tokenizers.__version__}`; "
-                f"there might be inference-time regressions due to dependency changes. If in doubt, please"
-                f"use the above versions."
-            )
+        # if (transformers.__version__ != "4.40.1") or (tokenizers.__version__ != "0.19.1"):
+        #     logger.warning(
+        #         f"Expected `transformers==4.40.1` and `tokenizers==0.19.1` but got "
+        #         f"`transformers=={transformers.__version__}` and `tokenizers=={tokenizers.__version__}`; "
+        #         f"there might be inference-time regressions due to dependency changes. If in doubt, please"
+        #         f"use the above versions."
+        #     )
 
         # Instantiate PrismaticVisionBackbone (w/ Potential Fused Backbone)
         self.vision_backbone = PrismaticVisionBackbone(
@@ -489,74 +490,74 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
         return self.language_model._reorder_cache(*args, **kwargs)
 
 
-class OpenVLAForActionPrediction(PrismaticForConditionalGeneration):
-    config_class: PretrainedConfig = OpenVLAConfig
+# class OpenVLAForActionPrediction(PrismaticForConditionalGeneration):
+#     config_class: PretrainedConfig = OpenVLAConfig
 
-    def __init__(self, config: OpenVLAConfig) -> None:
-        super().__init__(config)
-        self.norm_stats = config.norm_stats
+#     def __init__(self, config: OpenVLAConfig) -> None:
+#         super().__init__(config)
+#         self.norm_stats = config.norm_stats
 
-        # Compute action bins
-        self.bins = np.linspace(-1, 1, config.n_action_bins)
-        self.bin_centers = (self.bins[:-1] + self.bins[1:]) / 2.0
+#         # Compute action bins
+#         self.bins = np.linspace(-1, 1, config.n_action_bins)
+#         self.bin_centers = (self.bins[:-1] + self.bins[1:]) / 2.0
 
-        # Compute vocab size for de-tokenization -- revert added "multiple of"
-        self.vocab_size = self.config.text_config.vocab_size - self.config.pad_to_multiple_of
+#         # Compute vocab size for de-tokenization -- revert added "multiple of"
+#         self.vocab_size = self.config.text_config.vocab_size - self.config.pad_to_multiple_of
 
-    def predict_action(
-        self, input_ids: Optional[torch.LongTensor] = None, unnorm_key: Optional[str] = None, **kwargs: str
-    ) -> np.ndarray:
-        """Thin wrapper around .generate() that decodes predicted actions and unnormalizes them."""
-        # If the special empty token ('') does not already appear after the colon (':') token in the prompt
-        # (after "OUT:" or "ASSISTANT:"), insert it to match the inputs seen at training time
-        if not torch.all(input_ids[:, -1] == 29871):
-            input_ids = torch.cat(
-                (input_ids, torch.unsqueeze(torch.Tensor([29871]).long(), dim=0).to(input_ids.device)), dim=1
-            )
+#     def predict_action(
+#         self, input_ids: Optional[torch.LongTensor] = None, unnorm_key: Optional[str] = None, **kwargs: str
+#     ) -> np.ndarray:
+#         """Thin wrapper around .generate() that decodes predicted actions and unnormalizes them."""
+#         # If the special empty token ('') does not already appear after the colon (':') token in the prompt
+#         # (after "OUT:" or "ASSISTANT:"), insert it to match the inputs seen at training time
+#         if not torch.all(input_ids[:, -1] == 29871):
+#             input_ids = torch.cat(
+#                 (input_ids, torch.unsqueeze(torch.Tensor([29871]).long(), dim=0).to(input_ids.device)), dim=1
+#             )
 
-        # Run VLA inference
-        generated_ids = self.generate(input_ids, max_new_tokens=self.get_action_dim(unnorm_key), **kwargs)
+#         # Run VLA inference
+#         generated_ids = self.generate(input_ids, max_new_tokens=self.get_action_dim(unnorm_key), **kwargs)
 
-        # Extract predicted action tokens and translate into (normalized) continuous actions
-        predicted_action_token_ids = generated_ids[0, -self.get_action_dim(unnorm_key) :].cpu().numpy()
-        discretized_actions = self.vocab_size - predicted_action_token_ids
-        discretized_actions = np.clip(discretized_actions - 1, a_min=0, a_max=self.bin_centers.shape[0] - 1)
-        normalized_actions = self.bin_centers[discretized_actions]
+#         # Extract predicted action tokens and translate into (normalized) continuous actions
+#         predicted_action_token_ids = generated_ids[0, -self.get_action_dim(unnorm_key) :].cpu().numpy()
+#         discretized_actions = self.vocab_size - predicted_action_token_ids
+#         discretized_actions = np.clip(discretized_actions - 1, a_min=0, a_max=self.bin_centers.shape[0] - 1)
+#         normalized_actions = self.bin_centers[discretized_actions]
 
-        # Unnormalize actions
-        action_norm_stats = self.get_action_stats(unnorm_key)
-        mask = action_norm_stats.get("mask", np.ones_like(action_norm_stats["q01"], dtype=bool))
-        action_high, action_low = np.array(action_norm_stats["q99"]), np.array(action_norm_stats["q01"])
-        actions = np.where(
-            mask,
-            0.5 * (normalized_actions + 1) * (action_high - action_low) + action_low,
-            normalized_actions,
-        )
+#         # Unnormalize actions
+#         action_norm_stats = self.get_action_stats(unnorm_key)
+#         mask = action_norm_stats.get("mask", np.ones_like(action_norm_stats["q01"], dtype=bool))
+#         action_high, action_low = np.array(action_norm_stats["q99"]), np.array(action_norm_stats["q01"])
+#         actions = np.where(
+#             mask,
+#             0.5 * (normalized_actions + 1) * (action_high - action_low) + action_low,
+#             normalized_actions,
+#         )
 
-        return actions
+#         return actions
 
-    @staticmethod
-    def _check_unnorm_key(norm_stats: Dict[str, Dict[str, Any]], unnorm_key: Optional[str]) -> str:
-        if unnorm_key is None:
-            assert len(norm_stats) == 1, (
-                f"Your model was trained on more than one dataset, "
-                f"please pass a `unnorm_key` from the following options to choose the statistics "
-                f"used for un-normalizing actions: {norm_stats.keys()}"
-            )
-            unnorm_key = next(iter(norm_stats.keys()))
+#     @staticmethod
+#     def _check_unnorm_key(norm_stats: Dict[str, Dict[str, Any]], unnorm_key: Optional[str]) -> str:
+#         if unnorm_key is None:
+#             assert len(norm_stats) == 1, (
+#                 f"Your model was trained on more than one dataset, "
+#                 f"please pass a `unnorm_key` from the following options to choose the statistics "
+#                 f"used for un-normalizing actions: {norm_stats.keys()}"
+#             )
+#             unnorm_key = next(iter(norm_stats.keys()))
 
-        assert unnorm_key in norm_stats, (
-            f"The `unnorm_key` you chose is not in the set of available dataset statistics, "
-            f"please choose from: {norm_stats.keys()}"
-        )
-        return unnorm_key
+#         assert unnorm_key in norm_stats, (
+#             f"The `unnorm_key` you chose is not in the set of available dataset statistics, "
+#             f"please choose from: {norm_stats.keys()}"
+#         )
+#         return unnorm_key
 
-    def get_action_dim(self, unnorm_key: Optional[str] = None) -> int:
-        """Get the dimensionality of the policy's action space."""
-        unnorm_key = self._check_unnorm_key(self.norm_stats, unnorm_key)
-        return len(self.norm_stats[unnorm_key]["action"]["q01"])
+#     def get_action_dim(self, unnorm_key: Optional[str] = None) -> int:
+#         """Get the dimensionality of the policy's action space."""
+#         unnorm_key = self._check_unnorm_key(self.norm_stats, unnorm_key)
+#         return len(self.norm_stats[unnorm_key]["action"]["q01"])
 
-    def get_action_stats(self, unnorm_key: Optional[str] = None) -> Dict[str, Any]:
-        """Get all the logged statistics for the given dataset."""
-        unnorm_key = self._check_unnorm_key(self.norm_stats, unnorm_key)
-        return self.norm_stats[unnorm_key]["action"]
+#     def get_action_stats(self, unnorm_key: Optional[str] = None) -> Dict[str, Any]:
+#         """Get all the logged statistics for the given dataset."""
+#         unnorm_key = self._check_unnorm_key(self.norm_stats, unnorm_key)
+#         return self.norm_stats[unnorm_key]["action"]

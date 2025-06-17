@@ -5,9 +5,14 @@ from huggingface_hub import snapshot_download
 
 print("Starting download...")
 
+# snapshot_download(
+#     repo_id = "moxin-org/Moxin-7B-VLM",
+#     local_dir = "Moxin-7B-VLM",
+# )
+
 snapshot_download(
-    repo_id = "moxin-org/Moxin-7B-VLM",
-    local_dir = "Moxin-7B-VLM",
+    repo_id = "bobchenyx/Moxin-7B-VLM-hf",
+    local_dir = "Moxin-7B-VLM-hf",
 )
 
 print("Download finished.")

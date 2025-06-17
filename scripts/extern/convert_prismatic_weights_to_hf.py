@@ -38,9 +38,9 @@ class HFConvertConfig:
     output_hf_model_local_path: Path = Path(                            # Path to Local Path to save HF model
         "hf-convert/prismatic-siglip-224px-7b"
     )
-    output_hf_model_hub_path: str = (                                   # Path to HF Hub Path for "final" HF model
-        "TRI-ML/prismatic-siglip-224px-7b"                              #   => huggingface.co/TRI-ML/prismatic-{...}
-    )
+    # output_hf_model_hub_path: str = (                                   # Path to HF Hub Path for "final" HF model
+    #     "TRI-ML/prismatic-siglip-224px-7b"                              #   => huggingface.co/TRI-ML/prismatic-{...}
+    # )
 
     # HF Hub Credentials (required for Gated Models like LLaMa-2)
     # hf_token: Union[str, Path] = Path(".hf_token")                      # Environment variable or Path to HF Token
@@ -246,40 +246,33 @@ def convert_prismatic_weights_to_hf(cfg: HFConvertConfig) -> None:
     hf_image_processor.save_pretrained(cfg.output_hf_model_local_path)
     hf_processor.save_pretrained(cfg.output_hf_model_local_path)
 
-    # 复制自定义模型文件到输出目录
-    print("[*] Copying Custom Prismatic Files to Output Directory")
-    import shutil
-    from pathlib import Path
+    # # Copying Custom Prismatic Files to Output Directory
+    # print("[*] Copying Custom Prismatic Files to Output Directory")
+    # import shutil
+    # from pathlib import Path
 
-    # 定义需要复制的自定义模型文件
-    custom_files = [
-        "prismatic/extern/hf/modeling_prismatic.py",
-        "prismatic/extern/hf/configuration_prismatic.py",
-        "prismatic/extern/hf/processing_prismatic.py"
-    ]
+    # # custom_files
+    # custom_files = [
+    #     "prismatic/extern/hf/modeling_prismatic.py",
+    #     "prismatic/extern/hf/configuration_prismatic.py",
+    #     "prismatic/extern/hf/processing_prismatic.py"
+    # ]
 
-    # 复制文件
-    for file_path in custom_files:
-        src_path = Path(file_path)
-        if src_path.exists():
-            dst_path = cfg.output_hf_model_local_path / src_path.name
-            shutil.copy2(src_path, dst_path)
-            print(f"[*] Copied {src_path.name} to output directory")
-        else:
-            print(f"[WARNING] Custom file {file_path} not found")
+    # # 复制文件
+    # for file_path in custom_files:
+    #     src_path = Path(file_path)
+    #     if src_path.exists():
+    #         dst_path = cfg.output_hf_model_local_path / src_path.name
+    #         shutil.copy2(src_path, dst_path)
+    #         print(f"[*] Copied {src_path.name} to output directory")
+    #     else:
+    #         print(f"[WARNING] Custom file {file_path} not found")
 
     # Register AutoClasses
-    PrismaticConfig.register_for_auto_class()
-    PrismaticImageProcessor.register_for_auto_class("AutoImageProcessor")
-    PrismaticProcessor.register_for_auto_class("AutoProcessor")
-    PrismaticForConditionalGeneration.register_for_auto_class("AutoModelForVision2Seq")
-
-    # Push to Hub
-    print("[*] Pushing Model & Processor to HF Hub")
-    hf_config.push_to_hub(cfg.output_hf_model_hub_path)
-    hf_model.push_to_hub(cfg.output_hf_model_hub_path, max_shard_size="7GB")
-    hf_image_processor.push_to_hub(cfg.output_hf_model_hub_path)
-    hf_processor.push_to_hub(cfg.output_hf_model_hub_path)
+    # PrismaticConfig.register_for_auto_class()
+    # PrismaticImageProcessor.register_for_auto_class("AutoImageProcessor")
+    # PrismaticProcessor.register_for_auto_class("AutoProcessor")
+    # PrismaticForConditionalGeneration.register_for_auto_class("AutoModelForVision2Seq")
 
 
 if __name__ == "__main__":
