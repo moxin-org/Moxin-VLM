@@ -34,7 +34,7 @@ DEFAULT_IMAGE_URL = (
 class GenerateConfig:
     # fmt: off
     model_path: Union[str, Path] = (                                    # Path to Pretrained VLM (on disk or HF Hub)
-        "prism-dinosiglip+7b"
+        "moxin-org/Moxin-7B-VLM"
     )
 
     # HF Hub Credentials (optional, only needed for gated models)

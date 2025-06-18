@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/python-3.10-blue?style=for-the-badge)](https://www.python.org)
 [![License](https://img.shields.io/github/license/TRI-ML/prismatic-vlms?style=for-the-badge)](LICENSE)
 
-[**Installation**](#installation) | [**Usage**](#usage) | [**Pretrained Models**](#pretrained-models)
+[**Installation**](#installation)| [**Pretrained Models**](#pretrained-models) | [**Usage**](#usage) 
 
 ---
 
@@ -32,6 +32,18 @@ pip install flash-attn==2.6.3 --no-build-isolation
 
 If you run into any problems during the installation process, please file a GitHub Issue.
 
+## Pretrained Models
+
+Please find our Pretrained Models on our huggingface page: [moxin-org/Moxin-7B-VLM](https://huggingface.co/moxin-org/Moxin-7B-VLM).
+
+We've also provided a hf_convert version [Moxin-7B-VLM-hf](https://huggingface.co/bobchenyx/Moxin-7B-VLM-hf) based on [openvla](https://github.com/openvla/openvla).
+
+Please refer to the attached scripts for downloading and running our model locally.
+
+```bash
+python scripts/snapshot_download.py
+```
+
 ## Usage
 
 For a complete terminal-based CLI for interacting with our VLMs, check out [scripts/generate.py](scripts/generate.py). 
@@ -39,17 +51,10 @@ For a complete terminal-based CLI for interacting with our VLMs, check out [scri
 python scripts/generate.py --model_path moxin-org/Moxin-7B-VLM
 
 ```
-
-## Pretrained Models
-
-Please find our Pretrained Models on our huggingface page: [moxin-org/Moxin-7B-VLM](https://huggingface.co/moxin-org/Moxin-7B-VLM).
-
-We've also attach scripts to download and run our model locally.
-
+For a faster loading, inference and demo, check out [scripts/fast_inference.py](scripts/fast_inference.py). 
 ```bash
-python scripts/snapshot_download.py
+python fast_inference.py
 
-python scripts/generate.py --model_path <path_to_local_dir>
 ```
 
 ---

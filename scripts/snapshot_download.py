@@ -10,4 +10,9 @@ snapshot_download(
     local_dir = "Moxin-7B-VLM",
 )
 
+snapshot_download(
+    repo_id = "bobchenyx/Moxin-7B-VLM-hf",
+    local_dir = "Moxin-7B-VLM-hf",
+)
+
 print("Download finished.")
