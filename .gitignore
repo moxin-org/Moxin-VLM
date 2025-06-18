@@ -150,6 +150,7 @@ data/
 Moxin-7B-VLM/
 Moxin-7B-VLM-hf/
 hf-prism-moxin-dinosiglip/
+test/
 hf.py
 convert.sh
 verify.sh

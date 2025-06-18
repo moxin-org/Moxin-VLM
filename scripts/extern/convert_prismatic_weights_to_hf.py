@@ -31,16 +31,12 @@ from prismatic.extern.hf.processing_prismatic import PrismaticImageProcessor, Pr
 @dataclass
 class HFConvertConfig:
     # fmt: off
-    prismatic_model_path_or_id: Union[str, Path] = (                    # Path to Pretrained VLM (on disk or HF Hub)
-        "siglip-224px+7b"
-        # "prism-dinosiglip-224px+7b"
+    prismatic_model_path: Union[str, Path] = (                    # Path to Pretrained VLM (on disk or HF Hub)
+        "Moxin-7B-VLM"
     )
     output_hf_model_local_path: Path = Path(                            # Path to Local Path to save HF model
-        "hf-convert/prismatic-siglip-224px-7b"
+        "moxin-7b-vlm-hf"
     )
-    # output_hf_model_hub_path: str = (                                   # Path to HF Hub Path for "final" HF model
-    #     "TRI-ML/prismatic-siglip-224px-7b"                              #   => huggingface.co/TRI-ML/prismatic-{...}
-    # )
 
     # HF Hub Credentials (required for Gated Models like LLaMa-2)
     # hf_token: Union[str, Path] = Path(".hf_token")                      # Environment variable or Path to HF Token
@@ -104,21 +100,21 @@ def remap_state_dicts_for_hf(
 
 @draccus.wrap()
 def convert_prismatic_weights_to_hf(cfg: HFConvertConfig) -> None:
-    print(f"[*] Converting Prismatic Model `{cfg.prismatic_model_path_or_id}` to HF Transformers Format")
+    print(f"[*] Converting Prismatic Model `{cfg.prismatic_model_path}` to HF Transformers Format")
     torch.set_default_dtype(torch.bfloat16)
 
     # Get `config.json` and `checkpoint_pt` -- mirrors logic in `prismatic.models.load.py`
-    if os.path.isdir(cfg.prismatic_model_path_or_id):
-        print(f"[*] Loading from Local Path `{(run_dir := Path(cfg.prismatic_model_path_or_id))}`")
+    if os.path.isdir(cfg.prismatic_model_path):
+        print(f"[*] Loading from Local Path `{(run_dir := Path(cfg.prismatic_model_path))}`")
         config_json, checkpoint_pt = run_dir / "config.json", run_dir / "checkpoints" / "latest-checkpoint.pt"
 
         assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
         assert checkpoint_pt.exists(), f"Missing checkpoint for `{run_dir = }`"
     else:
-        print(f"[*] Downloading Prismatic Checkpoint from HF Hub :: `TRI-ML/{cfg.prismatic_model_path_or_id}`")
-        config_json = hf_hub_download("TRI-ML/prismatic-vlms", f"{cfg.prismatic_model_path_or_id}/config.json")
+        print(f"[*] Downloading Prismatic Checkpoint from HF Hub :: `moxin-org/Moxin-7B-VLM`")
+        config_json = hf_hub_download("moxin-org/Moxin-7B-VLM", "config.json")
         checkpoint_pt = hf_hub_download(
-            "TRI-ML/prismatic-vlms", f"{cfg.prismatic_model_path_or_id}/checkpoints/latest-checkpoint.pt"
+            "moxin-org/Moxin-7B-VLM", "checkpoints/latest-checkpoint.pt"
         )
 
     # Load "Native" Config JSON =>> Create LLM Config & Instantiate Tokenizer
@@ -136,7 +132,7 @@ def convert_prismatic_weights_to_hf(cfg: HFConvertConfig) -> None:
     )
 
     print("[*] Checking and adjusting layer count for Moxin-7B model")
-    # 从 checkpoint 中检测实际的层数
+    # get actual number of layers in the LLM backbone from checkpoint
     max_layer = -1
     checkpoint_data = torch.load(checkpoint_pt, map_location="cpu")
     for key in checkpoint_data["model"]["llm_backbone"].keys():
@@ -148,7 +144,7 @@ def convert_prismatic_weights_to_hf(cfg: HFConvertConfig) -> None:
         actual_num_layers = max_layer + 1
         print(f"[DEBUG] Detected {actual_num_layers} layers in LLM backbone")
         
-        # 如果检测到是 Moxin-7B 的 36 层，则修正配置
+        # Adjust the number of hidden layers in the config if necessary
         if actual_num_layers == 36 and hf_config.text_config.num_hidden_layers != 36:
             print(f"[INFO] Adjusting num_hidden_layers from {hf_config.text_config.num_hidden_layers} to {actual_num_layers} for Moxin-7B")
             hf_config.text_config.num_hidden_layers = actual_num_layers
@@ -245,28 +241,6 @@ def convert_prismatic_weights_to_hf(cfg: HFConvertConfig) -> None:
     hf_model.save_pretrained(cfg.output_hf_model_local_path, max_shard_size="7GB")
     hf_image_processor.save_pretrained(cfg.output_hf_model_local_path)
     hf_processor.save_pretrained(cfg.output_hf_model_local_path)
-
-    # # Copying Custom Prismatic Files to Output Directory
-    # print("[*] Copying Custom Prismatic Files to Output Directory")
-    # import shutil
-    # from pathlib import Path
-
-    # # custom_files
-    # custom_files = [
-    #     "prismatic/extern/hf/modeling_prismatic.py",
-    #     "prismatic/extern/hf/configuration_prismatic.py",
-    #     "prismatic/extern/hf/processing_prismatic.py"
-    # ]
-
-    # # 复制文件
-    # for file_path in custom_files:
-    #     src_path = Path(file_path)
-    #     if src_path.exists():
-    #         dst_path = cfg.output_hf_model_local_path / src_path.name
-    #         shutil.copy2(src_path, dst_path)
-    #         print(f"[*] Copied {src_path.name} to output directory")
-    #     else:
-    #         print(f"[WARNING] Custom file {file_path} not found")
 
     # Register AutoClasses
     PrismaticConfig.register_for_auto_class()

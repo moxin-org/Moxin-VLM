@@ -21,7 +21,8 @@ logging.set_verbosity_error()
 print("[*] Using direct Prismatic classes (bypassing AutoClasses)")
 
 # === Verification Arguments ===
-MODEL_PATH = "Moxin-7B-VLM-hf"
+MODEL_PATH = "bobchenyx/Moxin-7B-VLM-hf"
+
 DEFAULT_IMAGE_URL = (
     "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/beignets-task-guide.png"
 )
