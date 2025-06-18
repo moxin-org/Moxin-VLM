@@ -2,7 +2,7 @@
 configuration_prismatic.py
 
 HuggingFace-style configuration definition for Prismatic VLMs, inheriting from `transformers.PretrainedConfig`.
-Default configuration specifies `siglip-224px+7b`.
+
 """
 
 from typing import Any, Dict, Optional

@@ -1,8 +1,8 @@
 """
 processing_prismatic.py
 
-HuggingFace-style preprocessor definitions for Prismatic VLMs, inheriting from `ProcessorMixin`. Default configuration
-specifies `siglip-224px+7b`.
+HuggingFace-style preprocessor definitions for Prismatic VLMs, inheriting from `ProcessorMixin`. 
+
 """
 
 from typing import Any, ClassVar, List, Optional, Tuple, Union
