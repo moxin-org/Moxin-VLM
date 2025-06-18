@@ -34,6 +34,18 @@ SAMPLE_PROMPTS_FOR_GENERATION = [
     "In: Can you give me a lyrical description of the scene?\nOut:",
 ]
 
+# SYSTEM_PROMPT = (
+#     "A chat between a curious user and an artificial intelligence assistant. "
+#     "The assistant gives helpful, detailed, and polite answers to the user's questions."
+# )
+# SAMPLE_PROMPTS_FOR_GENERATION = [
+#     f"{SYSTEM_PROMPT} USER: What is sitting in the coffee? ASSISTANT:",
+#     f"{SYSTEM_PROMPT} USER: What's the name of the food on the plate? ASSISTANT:",
+#     f"{SYSTEM_PROMPT} USER: caption. ASSISTANT:",
+#     f"{SYSTEM_PROMPT} USER: how many beinets..? ASSISTANT:",
+#     f"{SYSTEM_PROMPT} USER: Can you give me a lyrical description of the scene ASSISTANT:",
+# ]
+
 @torch.inference_mode()
 def verify_prismatic() -> None:
     print(f"[*] Verifying PrismaticForConditionalGeneration using Model `{MODEL_PATH}`")

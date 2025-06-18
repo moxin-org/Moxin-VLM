@@ -269,10 +269,10 @@ def convert_prismatic_weights_to_hf(cfg: HFConvertConfig) -> None:
     #         print(f"[WARNING] Custom file {file_path} not found")
 
     # Register AutoClasses
-    # PrismaticConfig.register_for_auto_class()
-    # PrismaticImageProcessor.register_for_auto_class("AutoImageProcessor")
-    # PrismaticProcessor.register_for_auto_class("AutoProcessor")
-    # PrismaticForConditionalGeneration.register_for_auto_class("AutoModelForVision2Seq")
+    PrismaticConfig.register_for_auto_class()
+    PrismaticImageProcessor.register_for_auto_class("AutoImageProcessor")
+    PrismaticProcessor.register_for_auto_class("AutoProcessor")
+    PrismaticForConditionalGeneration.register_for_auto_class("AutoModelForVision2Seq")
 
 
 if __name__ == "__main__":
