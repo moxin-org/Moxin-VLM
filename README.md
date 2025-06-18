@@ -36,7 +36,7 @@ If you run into any problems during the installation process, please file a GitH
 
 Please find our Pretrained Models on our huggingface page: [moxin-org/Moxin-7B-VLM](https://huggingface.co/moxin-org/Moxin-7B-VLM).
 
-We've also provided a hf_convert version [Moxin-7B-VLM-hf](https://huggingface.co/bobchenyx/Moxin-7B-VLM-hf) based on [openvla](https://github.com/openvla/openvla)
+We've also provided a hf_convert version [Moxin-7B-VLM-hf](https://huggingface.co/bobchenyx/Moxin-7B-VLM-hf) based on [openvla](https://github.com/openvla/openvla).
 
 Please refer to the attached scripts for downloading and running our model locally.
 
