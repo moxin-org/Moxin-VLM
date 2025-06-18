@@ -53,7 +53,7 @@ python scripts/generate.py --model_path moxin-org/Moxin-7B-VLM
 ```
 For a faster loading, inference and demo, check out [scripts/fast_inference.py](scripts/fast_inference.py). 
 ```bash
-python fast_inference.py
+python scripts/fast_inference.py
 
 ```
 
